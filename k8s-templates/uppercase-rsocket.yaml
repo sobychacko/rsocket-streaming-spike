@@ -35,11 +35,11 @@ spec:
             - name: SPRING_CLOUD_STREAM_KAFKA_BINDER_REPLICATIONFACTOR
               value: "1"
             - name: SPRING_RABBITMQ_HOST
-              value: bitnami-rabbitmq-1
+              value: bitnami-rabbitmq
             - name: SPRING_RABBITMQ_USERNAME
               value: user
             - name: SPRING_RABBITMQ_PASSWORD
-              value: hpfshztm9r
+              value: p5xYYRZduZ
             - name: RSOCKET_SERVER_IP
               value: localhost
           livenessProbe:
