@@ -11,9 +11,9 @@ spec:
   type: LoadBalancer
   ports:
     - port: 80
-      name: multibinder-rsocket-port
+      name: multibinder-rsocket
       targetPort: 8080
       protocol: TCP
   selector:
-    app: multibinder-rsocket
-    component: multibinder-rsocket
+    app: uppercase-rsocket
+    component: uppercase-rsocket

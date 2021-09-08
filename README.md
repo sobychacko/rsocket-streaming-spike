@@ -84,10 +84,8 @@ Make sure that you can login at `localhost:15673`.
 
 ### Application containers
 
-Ideally, we would like to run both of these apps in two containers on the same pod (side-car pattern), but for this demo, we are going to run them separate on two different pods.
-In the next iteration, we will convert this part of the demo to use the sidecar pattern.
-
-Both of these applications are available as docker images on Docker Hub.,
+Both of these applications are available as docker images on Docker Hub.
+We will run the multibinder-rsocket app as a sidecar. 
 
 #### Start the uppercase function app
 

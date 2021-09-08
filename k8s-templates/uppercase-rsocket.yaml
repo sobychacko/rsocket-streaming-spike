@@ -23,3 +23,34 @@ spec:
           env:
             - name: SPRING_RSOCKET_SERVER_PORT
               value: "7000"
+        - name: multibinder-rsocket
+          image: sobychacko/multibinder-rsocket-demo:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS
+              value: kafka:9092
+            - name: SPRING_CLOUD_STREAM_KAFKA_BINDER_ZKNODES
+              value: kafka-zk:2181
+            - name: SPRING_CLOUD_STREAM_KAFKA_BINDER_REPLICATIONFACTOR
+              value: "1"
+            - name: SPRING_RABBITMQ_HOST
+              value: bitnami-rabbitmq-1
+            - name: SPRING_RABBITMQ_USERNAME
+              value: user
+            - name: SPRING_RABBITMQ_PASSWORD
+              value: hpfshztm9r
+            - name: RSOCKET_SERVER_IP
+              value: localhost
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 60
+          readinessProbe:
+            httpGet:
+              path: /actuator/info
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
