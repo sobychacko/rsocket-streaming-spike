@@ -65,7 +65,7 @@ Verify that both Apache Kafka and RabbitMQ are up and running:
 
 You should see something like below:
 
-```aidl
+```
 NAME                                       READY   STATUS    RESTARTS   AGE
 pod/bitnami-rabbitmq-0                     1/1     Running   0          77m
 pod/kafka-broker-68cf7d7847-8ll4f          1/1     Running   0          168m
