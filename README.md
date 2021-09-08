@@ -79,7 +79,7 @@ Port forward from Rabbit MQ management service in order to access the Rabbit man
 
 `kubectl port-forward --namespace default svc/bitnami-rabbitmq-0 15673:15672`
 
-In this case, we are making the Rabbit management console available on localhost at port 15673.
+In this case, we are making the Rabbit management console available on localhost at port `15673`.
 Make sure that you can login at `localhost:15673`.
 
 ### Application containers
@@ -111,7 +111,7 @@ kubectl create -f multibider-rsocket-svc.yaml
 ```
 
 At this point, all of the components must be up and running. 
-It should as below on `kubectl get all`
+It should look as below on doing `kubectl get all`
 
 ```
 k get all
@@ -175,6 +175,29 @@ THe text that you entered into the Kafka topic should be received as uppercased 
 If you see the data through the topic, then we validated the scenario.
 
 If you don't see the data, chances are that some configuration might be missing. Happy debugging!
+
+### Multibinder App Actuator endpoints
+
+We can find more details about the multibinder app using the various actuator endpoints.
+
+Following are some examples:
+
+Please update the proper external IP for the multibinder app POD (if you are using loadbalancer on minikube).
+If you are port forwarding to localhost, then use the appropriate ports on localhost for these.
+
+```
+curl 192.168.99.96/actuator/health | jq .
+
+curl 192.168.99.96/actuator/bindings | jq .
+
+curl 192.168.99.96/actuator/metrics | jq .
+
+curl 192.168.99.96/actuator/configprops | jq .
+```
+
+** Using the bindings endpoint, we can pause the processing temporarily if we need to throttle or rate limit the incoming traffic.
+
+** Similarly the metrics endpoint will list all the available metrics. You can drill down into each of them further.  
 
 ### Teardown the components
 
