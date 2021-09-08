@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uppercase-rsocket
+  labels:
+    app: uppercase-rsocket
+    type: streaming-spike
+    component: uppercase-rsocket
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: uppercase-rsocket
+  template:
+    metadata:
+      labels:
+        app: uppercase-rsocket
+        component: uppercase-rsocket
+    spec:
+      containers:
+        - name: uppercase-rsocket
+          image: sobychacko/uppercase-rsocket-demo:latest
+          env:
+            - name: SPRING_RSOCKET_SERVER_PORT
+              value: "7000"

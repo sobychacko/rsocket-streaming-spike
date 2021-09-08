@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: multibinder-rsocket
+  labels:
+    app: multibinder-rsocket
+    component: multibinder-rsocket
+    type: streaming-spike
+    spring-deployment-id: multibinder-rsocket
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      name: multibinder-rsocket-port
+      targetPort: 8080
+      protocol: TCP
+  selector:
+    app: multibinder-rsocket
+    component: multibinder-rsocket

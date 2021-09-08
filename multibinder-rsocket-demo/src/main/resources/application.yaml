@@ -1,0 +1,20 @@
+spring:
+  cloud:
+    stream:
+      bindings:
+        process-in-0:
+          destination: dataIn
+          binder: kafka
+        process-out-0:
+          destination: dataOut
+          binder: rabbit
+    function:
+        definition: process
+management:
+  endpoint:
+    health:
+      show-details: ALWAYS
+  endpoints:
+    web:
+      exposure:
+        include: "*"
