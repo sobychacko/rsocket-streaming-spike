@@ -170,7 +170,7 @@ At the prompt, enter some text.
 On your localhost, go to `http://localhost:15763` (Use the credentials from above)
 
 Create a queue binding for the exchange `dataOut` and retrieve messages from the queue.
-THe text that you entered into the Kafka topic should be received as uppercased through the Rabbit queue.
+The text that you entered into the Kafka topic should be received as uppercased through the Rabbit queue.
 
 If you see the data through the topic, then we validated the scenario.
 
