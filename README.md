@@ -112,37 +112,33 @@ At this point, all of the components must be up and running.
 It should look as below on doing `kubectl get all`
 
 ```
-k get all
-NAME                                       READY   STATUS    RESTARTS   AGE
-pod/bitnami-rabbitmq-0                     1/1     Running   0          77m
-pod/kafka-broker-68cf7d7847-8ll4f          1/1     Running   0          168m
-pod/kafka-zk-5cdd8b4c75-nz7vk              1/1     Running   0          168m
-pod/multibinder-rsocket-64d97c957d-n4hqc   1/1     Running   0          63m
-pod/uppercase-rsocket-646ddb7547-bpmfj     1/1     Running   0          136m
+NAME                                     READY   STATUS    RESTARTS   AGE
+pod/bitnami-rabbitmq-0                   1/1     Running   0          15m
+pod/kafka-broker-68cf7d7847-ns49f        1/1     Running   0          11m
+pod/kafka-zk-5cdd8b4c75-9fk8f            1/1     Running   0          11m
+pod/uppercase-rsocket-7bcd99849c-r9qb8   2/2     Running   0          5m4s
 
-NAME                                  TYPE           CLUSTER-IP       EXTERNAL-IP     PORT(S)                                 AGE
-service/bitnami-rabbitmq-0            ClusterIP      10.98.200.55     <none>          5672/TCP,4369/TCP,25672/TCP,15672/TCP   77m
-service/bitnami-rabbitmq-0-headless   ClusterIP      None             <none>          4369/TCP,5672/TCP,25672/TCP,15672/TCP   77m
-service/kafka                         ClusterIP      10.96.214.6      <none>          9092/TCP                                168m
-service/kafka-zk                      ClusterIP      10.106.240.127   <none>          2181/TCP,2888/TCP,3888/TCP              168m
-service/kubernetes                    ClusterIP      10.96.0.1        <none>          443/TCP                                 237d
-service/multibinder-rsocket           LoadBalancer   10.101.161.53    192.168.99.96   80:30816/TCP                            63m
-service/uppercase-rsocket             ClusterIP      10.109.166.32    <none>          7000/TCP                                136m
+NAME                                TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)                                 AGE
+service/bitnami-rabbitmq            ClusterIP      10.109.26.248    <none>        5672/TCP,4369/TCP,25672/TCP,15672/TCP   15m
+service/bitnami-rabbitmq-headless   ClusterIP      None             <none>        4369/TCP,5672/TCP,25672/TCP,15672/TCP   15m
+service/kafka                       ClusterIP      10.109.174.193   <none>        9092/TCP                                11m
+service/kafka-zk                    ClusterIP      10.102.155.150   <none>        2181/TCP,2888/TCP,3888/TCP              11m
+service/kubernetes                  ClusterIP      10.96.0.1        <none>        443/TCP                                 16m
+service/multibinder-rsocket         LoadBalancer   10.96.99.53      <pending>     80:30763/TCP                            11m
+service/uppercase-rsocket           ClusterIP      10.110.150.52    <none>        7000/TCP                                11m
 
-NAME                                  READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/kafka-broker          1/1     1            1           168m
-deployment.apps/kafka-zk              1/1     1            1           168m
-deployment.apps/multibinder-rsocket   1/1     1            1           63m
-deployment.apps/uppercase-rsocket     1/1     1            1           136m
+NAME                                READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/kafka-broker        1/1     1            1           11m
+deployment.apps/kafka-zk            1/1     1            1           11m
+deployment.apps/uppercase-rsocket   1/1     1            1           5m4s
 
-NAME                                             DESIRED   CURRENT   READY   AGE
-replicaset.apps/kafka-broker-68cf7d7847          1         1         1       168m
-replicaset.apps/kafka-zk-5cdd8b4c75              1         1         1       168m
-replicaset.apps/multibinder-rsocket-64d97c957d   1         1         1       63m
-replicaset.apps/uppercase-rsocket-646ddb7547     1         1         1       136m
+NAME                                           DESIRED   CURRENT   READY   AGE
+replicaset.apps/kafka-broker-68cf7d7847        1         1         1       11m
+replicaset.apps/kafka-zk-5cdd8b4c75            1         1         1       11m
+replicaset.apps/uppercase-rsocket-7bcd99849c   1         1         1       5m4s
 
-NAME                                  READY   AGE
-statefulset.apps/bitnami-rabbitmq-0   1/1     77m
+NAME                                READY   AGE
+statefulset.apps/bitnami-rabbitmq   1/1     15m
 ```
 
 ### Verifying the demo 
