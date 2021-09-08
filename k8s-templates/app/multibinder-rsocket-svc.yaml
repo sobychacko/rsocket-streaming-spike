@@ -15,5 +15,5 @@ spec:
       targetPort: 8080
       protocol: TCP
   selector:
-    app: uppercase-rsocket
-    component: uppercase-rsocket
+    app: uppercase-with-multibinder-rsocket
+    component: uppercase-with-multibinder-rsocket

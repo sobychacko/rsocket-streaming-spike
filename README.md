@@ -45,19 +45,13 @@ Start minikube.
 #### Kafka
 
 ```
-kubectl create -f kafka-zk-deployment.yaml
-kubectl create -f kafka-zk-svc.yaml
-
-kubectl create -f kafka-deployment.yaml
-kubectl create -f kafka-svc.yaml
+kubectl apply -f kafka/
 ```
 #### RabbitMQ
 
-Start RabbitMQ using Bitnami Helm charts:
-
-If you don't have the bitnami repo, add this: `helm repo add bitnami https://charts.bitnami.com/bitnami`. 
-
-`helm install bitnami-rabbitmq bitnami/rabbitmq`
+```
+kubectl apply -f rabbitmq/
+```
 
 Verify that both Apache Kafka and RabbitMQ are up and running:
 
@@ -66,79 +60,79 @@ Verify that both Apache Kafka and RabbitMQ are up and running:
 You should see something like below:
 
 ```
-NAME                                       READY   STATUS    RESTARTS   AGE
-pod/bitnami-rabbitmq-0                     1/1     Running   0          77m
-pod/kafka-broker-68cf7d7847-8ll4f          1/1     Running   0          168m
-pod/kafka-zk-5cdd8b4c75-nz7vk              1/1     Running   0          168m
-```
+NAME                                   READY   STATUS    RESTARTS   AGE
+pod/kafka-broker-68cf7d7847-s95qk      1/1     Running   0          9s
+pod/kafka-zk-5cdd8b4c75-txw4h          1/1     Running   0          9s
+pod/rabbitmq-broker-7bcff9f86d-6cb7x   1/1     Running   0          2s
 
-While starting the Bitnamit RabbitMQ chart, make a note of all the details, especially the way to extract the user credentials for Rabbit. 
-Later on, you will need this to connect to the Rabbit environment.
+NAME                 TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                      AGE
+service/kafka        ClusterIP   10.111.162.192   <none>        9092/TCP                     9s
+service/kafka-zk     ClusterIP   10.106.10.247    <none>        2181/TCP,2888/TCP,3888/TCP   9s
+service/kubernetes   ClusterIP   10.96.0.1        <none>        443/TCP                      45s
+service/rabbitmq     ClusterIP   10.102.242.25    <none>        5672/TCP,15672/TCP           2s
+
+NAME                              READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/kafka-broker      1/1     1            1           9s
+deployment.apps/kafka-zk          1/1     1            1           9s
+deployment.apps/rabbitmq-broker   1/1     1            1           2s
+
+NAME                                         DESIRED   CURRENT   READY   AGE
+replicaset.apps/kafka-broker-68cf7d7847      1         1         1       9s
+replicaset.apps/kafka-zk-5cdd8b4c75          1         1         1       9s
+replicaset.apps/rabbitmq-broker-7bcff9f86d   1         1         1       2s
+```
 
 Port forward from Rabbit MQ management service in order to access the Rabbit management UI.
 
-`kubectl port-forward --namespace default svc/bitnami-rabbitmq-0 15673:15672`
+```
+kubectl port-forward svc/rabbitmq 15673:15672
+```
 
 In this case, we are making the Rabbit management console available on localhost at port `15673`.
-Make sure that you can login at `localhost:15673`.
+Make sure that you can login at `http://localhost:15673`.
 
 ### Application containers
 
 Both of these applications are available as docker images on Docker Hub.
 We will run the multibinder-rsocket app as a sidecar. 
 
-#### Start the uppercase function app
+#### Start the deployment of the pod which has function app with multi-binder as sidecar
 
 ```
-kubectl cretae -f uppercase-rsocket.yaml
-kubectl cretae -f uppercase-rsocket-svc.yaml
+kubectl apply -f app/
 ```
 
-#### Start the multibinder app
+This step will create a deployment with the pod which has the `uppercase-rsocket` as the main container while the `multibinder-rsocket` as the sidecar container.
 
-Before starting the multibinder app, please fill in the rabbit connection credentials in multibinder-rsocket.yaml.
-They are left as blank. Refer above for extracting the credentials for the Bitnami RabbitMQ chart.
-
-Also note that the multibinder app uses the `LoadBalancer` type. 
-Minikube does not support the `LoadBalancer` type by default. 
-Use something like MetalB for that purpose or port forward to your localhost for accessing the binder actuator endpoints.
+To view the deployment:
 
 ```
-kubectl create -f multibinder-rsocket.yaml
-kubectl create -f multibider-rsocket-svc.yaml
+kubectl get all -l app=uppercase-with-multibinder-rsocket
 ```
 
-At this point, all of the components must be up and running. 
-It should look as below on doing `kubectl get all`
+```
+NAME                                                     READY   STATUS    RESTARTS   AGE
+pod/uppercase-with-multibinder-rsocket-664d9dc56-r2z4z   2/2     Running   0          53s
+
+NAME                                                 READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/uppercase-with-multibinder-rsocket   1/1     1            1           53s
+
+NAME                                                           DESIRED   CURRENT   READY   AGE
+replicaset.apps/uppercase-with-multibinder-rsocket-664d9dc56   1         1         1       53s
+```
+
+This step would have also created a service which is used to expose the `multibinder-rsocket` sidecar container.
 
 ```
-NAME                                     READY   STATUS    RESTARTS   AGE
-pod/bitnami-rabbitmq-0                   1/1     Running   0          15m
-pod/kafka-broker-68cf7d7847-ns49f        1/1     Running   0          11m
-pod/kafka-zk-5cdd8b4c75-9fk8f            1/1     Running   0          11m
-pod/uppercase-rsocket-7bcd99849c-r9qb8   2/2     Running   0          5m4s
+kubectl get svc,endpoints -l app=multibinder-rsocket 
+```
 
-NAME                                TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)                                 AGE
-service/bitnami-rabbitmq            ClusterIP      10.109.26.248    <none>        5672/TCP,4369/TCP,25672/TCP,15672/TCP   15m
-service/bitnami-rabbitmq-headless   ClusterIP      None             <none>        4369/TCP,5672/TCP,25672/TCP,15672/TCP   15m
-service/kafka                       ClusterIP      10.109.174.193   <none>        9092/TCP                                11m
-service/kafka-zk                    ClusterIP      10.102.155.150   <none>        2181/TCP,2888/TCP,3888/TCP              11m
-service/kubernetes                  ClusterIP      10.96.0.1        <none>        443/TCP                                 16m
-service/multibinder-rsocket         LoadBalancer   10.96.99.53      <pending>     80:30763/TCP                            11m
-service/uppercase-rsocket           ClusterIP      10.110.150.52    <none>        7000/TCP                                11m
+```
+NAME                          TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
+service/multibinder-rsocket   LoadBalancer   10.102.154.134   <pending>     80:32143/TCP   5m22s
 
-NAME                                READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/kafka-broker        1/1     1            1           11m
-deployment.apps/kafka-zk            1/1     1            1           11m
-deployment.apps/uppercase-rsocket   1/1     1            1           5m4s
-
-NAME                                           DESIRED   CURRENT   READY   AGE
-replicaset.apps/kafka-broker-68cf7d7847        1         1         1       11m
-replicaset.apps/kafka-zk-5cdd8b4c75            1         1         1       11m
-replicaset.apps/uppercase-rsocket-7bcd99849c   1         1         1       5m4s
-
-NAME                                READY   AGE
-statefulset.apps/bitnami-rabbitmq   1/1     15m
+NAME                            ENDPOINTS         AGE
+endpoints/multibinder-rsocket   172.17.0.6:8080   5m22s
 ```
 
 ### Verifying the demo 
@@ -152,7 +146,7 @@ This can be validated by sending some data to the Kafka topic and make sure that
 Open an SSH connection to the Kafka broker:
 
 ```
-k exec -it kafka-broker-68cf7d7847-8ll4f -- /bin/bash
+kubectl exec -it <kafka-broker-pod-name> -- /bin/bash
 ```
 Update the Kafka broker pod name when you run this.
 

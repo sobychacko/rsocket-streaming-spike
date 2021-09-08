@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: uppercase-rsocket
+  name: uppercase-with-multibinder-rsocket
   labels:
-    app: uppercase-rsocket
+    app: uppercase-with-multibinder-rsocket
     type: streaming-spike
-    component: uppercase-rsocket
+    component: uppercase-with-multibinder-rsocket
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: uppercase-rsocket
+      app: uppercase-with-multibinder-rsocket
   template:
     metadata:
       labels:
-        app: uppercase-rsocket
-        component: uppercase-rsocket
+        app: uppercase-with-multibinder-rsocket
+        component: uppercase-with-multibinder-rsocket
     spec:
       containers:
         - name: uppercase-rsocket
@@ -35,11 +35,13 @@ spec:
             - name: SPRING_CLOUD_STREAM_KAFKA_BINDER_REPLICATIONFACTOR
               value: "1"
             - name: SPRING_RABBITMQ_HOST
-              value: bitnami-rabbitmq
+              value: rabbitmq
+            - name: SPRING_RABBITMQ_PORT
+              value: "5672"
             - name: SPRING_RABBITMQ_USERNAME
-              value: user
+              value: guest
             - name: SPRING_RABBITMQ_PASSWORD
-              value: p5xYYRZduZ
+              value: guest
             - name: RSOCKET_SERVER_IP
               value: localhost
           livenessProbe:
