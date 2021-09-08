@@ -9,6 +9,7 @@ spring:
           destination: dataOut
           binder: rabbit
     function:
+        rsocket.enabled: false
         definition: process
 management:
   endpoint:
