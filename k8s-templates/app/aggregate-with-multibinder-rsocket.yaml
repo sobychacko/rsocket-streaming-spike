@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aggregate-with-multibinder-rsocket
+  labels:
+    app: aggregate-with-multibinder-rsocket
+    type: streaming-spike
+    component: aggregate-with-multibinder-rsocket
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aggregate-with-multibinder-rsocket
+  template:
+    metadata:
+      labels:
+        app: aggregate-with-multibinder-rsocket
+        component: aggregate-with-multibinder-rsocket
+    spec:
+      containers:
+        - name: aggregate-rsocket
+          image: sobychacko/uppercase-rsocket-demo:latest
+          env:
+            - name: SPRING_RSOCKET_SERVER_PORT
+              value: "7000"
+        - name: multibinder-rsocket
+          image: sobychacko/multibinder-rsocket-demo:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS
+              value: kafka:9092
+            - name: SPRING_CLOUD_STREAM_KAFKA_BINDER_ZKNODES
+              value: kafka-zk:2181
+            - name: SPRING_CLOUD_STREAM_KAFKA_BINDER_REPLICATIONFACTOR
+              value: "1"
+            - name: SPRING_CLOUD_STREAM_BINDINGS_PROXY-IN-0_DESTINATION
+              value: aggregateIn
+            - name: SPRING_CLOUD_STREAM_BINDINGS_PROXY-OUT-0_DESTINATION
+              value: aggregateOut
+            - name: SPRING_RABBITMQ_HOST
+              value: rabbitmq
+            - name: SPRING_RABBITMQ_PORT
+              value: "5672"
+            - name: SPRING_RABBITMQ_USERNAME
+              value: guest
+            - name: SPRING_RABBITMQ_PASSWORD
+              value: guest
+            - name: RSOCKET_SERVER_IP
+              value: localhost
+            - name: RSOCKET_SERVER_ROUTE
+              value: aggregate
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 60
+          readinessProbe:
+            httpGet:
+              path: /actuator/info
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10

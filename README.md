@@ -104,7 +104,10 @@ kubectl apply -f app/
 
 This step will create a deployment with the pod which has the `uppercase-rsocket` as the main container while the `multibinder-rsocket` as the sidecar container.
 
-To view the deployment:
+This will also create a second deployment (another pod) with `aggregate-rsocket` as the main container and the sidecar container `multibinder-rsocket`. 
+This pod will invoke the second function (aggregate) in the `uppercase-rsocket` app which is a reactive style of aggregating text accumulated over a 10 second window.
+
+To view the first deployment:
 
 ```
 kubectl get all -l app=uppercase-with-multibinder-rsocket
@@ -135,9 +138,17 @@ NAME                            ENDPOINTS         AGE
 endpoints/multibinder-rsocket   172.17.0.6:8080   5m22s
 ```
 
-### Verifying the demo 
+To view the second deployment and its service
 
-As indicated above, our purpose is to verify the following:
+```
+kubectl get all -l app=aggregate-with-multibinder-rsocket
+kubectl get svc,endpoints -l app=aggregate-multibinder-rsocket 
+```
+
+
+### Verifying the uppercase demo 
+
+As indicated above, our purpose is to verify the following using the regular uppercase function:
 
 Kafka Topic -> Request to RSocket Server -> User function -> Response from Rsocket server -> RabbitMQ Exchange
 
@@ -155,12 +166,42 @@ Update the Kafka broker pod name when you run this.
 ```
 At the prompt, enter some text.
 
-On your localhost, go to `http://localhost:15763` (Use the credentials from above)
+On your localhost, go to `http://localhost:15763` 
 
 Create a queue binding for the exchange `dataOut` and retrieve messages from the queue.
 The text that you entered into the Kafka topic should be received as uppercased through the Rabbit queue.
 
-If you see the data through the topic, then we validated the scenario.
+If you see the data through the queue, then we validated the scenario.
+
+If you don't see the data, chances are that some configuration might be missing. Happy debugging!
+
+### Verifying the aggregate demo
+
+As indicated above, our purpose is to verify the following using the reactive aggregate function:
+
+Kafka Topic -> Request to RSocket Server -> User function -> Response from Rsocket server -> RabbitMQ Exchange
+
+This can be validated by sending some data to the Kafka topic and make sure that we receive the output throuth the Rabbit exchange.
+
+Open an SSH connection to the Kafka broker:
+
+```
+kubectl exec -it <kafka-broker-pod-name> -- /bin/bash
+```
+Update the Kafka broker pod name when you run this.
+
+```
+/opt/kafka/bin/kafka-console-producer.sh --broker-list localhost:9092 --topic aggregateIn
+```
+At the prompt, enter some text. Enter a few more records. 
+The aggregator concatenates the records every 10 seconds window.
+
+On your localhost, go to `http://localhost:15763`
+
+Create a queue binding for the exchange `aggregateOut` and retrieve messages from the queue.
+The text that you entered into the Kafka topic should be received as concatenated through the Rabbit queue per 10 seconds window.
+
+If you see the data through the queue, then we validated the scenario.
 
 If you don't see the data, chances are that some configuration might be missing. Happy debugging!
 
@@ -187,10 +228,10 @@ curl 192.168.99.96/actuator/configprops | jq .
 
 ** Similarly the metrics endpoint will list all the available metrics. You can drill down into each of them further.  
 
+Proper IP or port-forwarding need to be used for the second multibinder sidecar in the aggregator pod.
+
 ### Teardown the components
 
 ```
 kubectl delete pod,deployment,rc,service -l type="streaming-spike"
 ```
-
-Manually delete all the Bitnami RabbitMQ components.

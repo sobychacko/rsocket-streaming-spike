@@ -4,6 +4,8 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>rsocket.streaming.spike</groupId>
     <artifactId>rsocket-streaming-spike</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
     <modules>
         <module>multibinder-rsocket-demo</module>
         <module>uppercase-rsocket-demo</module>
