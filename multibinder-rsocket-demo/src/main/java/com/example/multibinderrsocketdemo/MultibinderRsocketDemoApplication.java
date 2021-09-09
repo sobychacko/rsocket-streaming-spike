@@ -2,6 +2,8 @@ package com.example.multibinderrsocketdemo;
 
 import java.util.function.Function;
 
+import reactor.core.publisher.Flux;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -17,12 +19,12 @@ public class MultibinderRsocketDemoApplication {
 	}
 
 	@Bean
-	public Function<String, String> process(RSocketRequester rSocketRequester) {
+	public Function<Flux<byte[]>, Flux<byte[]>> proxy(RSocketRequester rSocketRequester,
+													  RSocketServerProperties rSocketServerProperties) {
 		return payload -> rSocketRequester
-				.route("uppercase")
+				.route(rSocketServerProperties.getRoute())
 				.data(payload)
-				.retrieveMono(String.class)
-				.block();
+				.retrieveFlux(byte[].class);
 	}
 
 	@Bean

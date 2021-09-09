@@ -9,6 +9,8 @@ public class RSocketServerProperties {
 
 	private Integer port = 7000;
 
+	private String route = "uppercase"; // default route
+
 	public String getIp() {
 		return ip;
 	}
@@ -23,5 +25,13 @@ public class RSocketServerProperties {
 
 	public void setPort(Integer port) {
 		this.port = port;
+	}
+
+	public String getRoute() {
+		return route;
+	}
+
+	public void setRoute(String route) {
+		this.route = route;
 	}
 }

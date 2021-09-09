@@ -2,15 +2,15 @@ spring:
   cloud:
     stream:
       bindings:
-        process-in-0:
+        proxy-in-0:
           destination: dataIn
           binder: kafka
-        process-out-0:
+        proxy-out-0:
           destination: dataOut
           binder: rabbit
     function:
         rsocket.enabled: false
-        definition: process
+        definition: proxy
 management:
   endpoint:
     health:
