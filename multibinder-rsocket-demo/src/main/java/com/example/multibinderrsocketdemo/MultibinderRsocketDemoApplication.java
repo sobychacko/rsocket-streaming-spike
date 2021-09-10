@@ -3,6 +3,7 @@ package com.example.multibinderrsocketdemo;
 import java.util.function.Function;
 
 import reactor.core.publisher.Flux;
+import reactor.util.retry.Retry;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -29,6 +30,7 @@ public class MultibinderRsocketDemoApplication {
 
 	@Bean
 	public RSocketRequester rSocketRequester(RSocketRequester.Builder rsocketRequesterBuilder, RSocketServerProperties rSocketServerProperties) {
-		return rsocketRequesterBuilder.tcp(rSocketServerProperties.getIp(), rSocketServerProperties.getPort());
+		return rsocketRequesterBuilder.rsocketConnector(connector -> connector.reconnect(Retry.indefinitely()))
+				.tcp(rSocketServerProperties.getIp(), rSocketServerProperties.getPort());
 	}
 }
