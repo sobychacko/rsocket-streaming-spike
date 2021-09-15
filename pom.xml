@@ -7,8 +7,8 @@
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modules>
-        <module>multibinder-rsocket-demo</module>
-        <module>uppercase-rsocket-demo</module>
+        <module>multibinder-grpc-demo</module>
+        <module>uppercase-grpc-demo</module>
     </modules>
 
 </project>

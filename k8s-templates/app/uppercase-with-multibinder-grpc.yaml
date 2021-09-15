@@ -1,30 +1,27 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: aggregate-with-multibinder-rsocket
+  name: uppercase-with-multibinder-grpc
   labels:
-    app: aggregate-with-multibinder-rsocket
+    app: uppercase-with-multibinder-grpc
     type: streaming-spike
-    component: aggregate-with-multibinder-rsocket
+    component: uppercase-with-multibinder-grpc
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: aggregate-with-multibinder-rsocket
+      app: uppercase-with-multibinder-grpc
   template:
     metadata:
       labels:
-        app: aggregate-with-multibinder-rsocket
-        component: aggregate-with-multibinder-rsocket
+        app: uppercase-with-multibinder-grpc
+        component: uppercase-with-multibinder-grpc
     spec:
       containers:
-        - name: aggregate-rsocket
-          image: sobychacko/uppercase-rsocket-demo:latest
-          env:
-            - name: SPRING_RSOCKET_SERVER_PORT
-              value: "7000"
-        - name: multibinder-rsocket
-          image: sobychacko/multibinder-rsocket-demo:latest
+        - name: uppercase-grpc
+          image: sobychacko/uppercase-grpc-demo:latest
+        - name: multibinder-grpc
+          image: sobychacko/multibinder-grpc-demo:latest
           ports:
             - containerPort: 8080
           env:
@@ -34,10 +31,6 @@ spec:
               value: kafka-zk:2181
             - name: SPRING_CLOUD_STREAM_KAFKA_BINDER_REPLICATIONFACTOR
               value: "1"
-            - name: SPRING_CLOUD_STREAM_BINDINGS_PROXY-IN-0_DESTINATION
-              value: aggregateIn
-            - name: SPRING_CLOUD_STREAM_BINDINGS_PROXY-OUT-0_DESTINATION
-              value: aggregateOut
             - name: SPRING_RABBITMQ_HOST
               value: rabbitmq
             - name: SPRING_RABBITMQ_PORT
@@ -48,8 +41,6 @@ spec:
               value: guest
             - name: RSOCKET_SERVER_IP
               value: localhost
-            - name: RSOCKET_SERVER_ROUTE
-              value: aggregate
           livenessProbe:
             httpGet:
               path: /actuator/health

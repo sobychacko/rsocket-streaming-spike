@@ -9,8 +9,8 @@ spring:
           destination: dataOut
           binder: rabbit
     function:
-        rsocket.enabled: false
         definition: proxy
+        grpc.port: 55554
 management:
   endpoint:
     health:

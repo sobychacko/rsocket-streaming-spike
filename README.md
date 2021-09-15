@@ -1,4 +1,4 @@
-# rsocket-streaming-spike
+# grpc-streaming-spike
 
 This is a spike that validates the following.
 
@@ -6,19 +6,19 @@ This is a spike that validates the following.
 2. Run another app that has all the intelligence around various middleware technologies such as Apache Kafka, RabbitMQ etc.
 
 The above two applications communicate over a commonly agreed upon protocol.
-For this spike, we use RSocket as that communication layer between the two. 
+For this spike, we use gRPC as that communication layer between the two. 
 
-## uppercase-rsocket-demo
+## uppercase-grpc-demo
 
 This is the first app that contains the user business logic.
 In this case, it simply contains a function that uppercase each String that it receives.
-By including the `spring-cloud-function-rsocket` module in the classpath of this applicaiton, we essentially make this app an RSocket server component. 
+By including the `spring-cloud-function-grpc` module in the classpath of this applicaiton, we essentially make this app an gRPC server component. 
 
-## multibinder-rsocket-demo
+## multibinder-grpc-demo
 
 This is the second app that knows how to communicate to various middleware systems.
 This is multi binder app that has both Spring Cloud Stream Kafka and Rabbit binders in it's classpath.
-More specifically, this app variant is hard-wired to consume data from a Kafka topic and then post this data through an RSocket request connection to the server in application 1. 
+More specifically, this app variant is hard-wired to consume data from a Kafka topic and then post this data through an gRPC request connection to the server in application 1. 
 Once the application returns the data (uppercased String), then we will take that response and publish to a RabbitMQ exchange.
 
 ## Running the apps locally
@@ -26,8 +26,8 @@ Once the application returns the data (uppercased String), then we will take tha
 1. Start Kafka locally
 2. Start RabbitMQ locally
 3. Build both apps (`./mvnw clean package`)
-4. `java -jar uppercase-rsocket-demo/target/uppercase-rsocket-demo-0.0.1-SNAPSHOT.jar --spring.rsocket.server.port=7000`
-5. `java -jar multibinder-rsocket-demo/target/multibinder-rsocket-demo-0.0.1-SNAPSHOT.jar`
+4. `java -jar uppercase-grpc-demo/target/uppercase-grpc-demo-0.0.1-SNAPSHOT.jar --spring.grpc.server.port=7000`
+5. `java -jar multibinder-grpc-demo/target/multibinder-grpc-demo-0.0.1-SNAPSHOT.jar`
 6. Publish some data to the Kafka topic `dataIn`.
 7. Receive the data uppercased through the RabbitMQ exchange `dataOut`.
 
@@ -94,7 +94,7 @@ Make sure that you can login at `http://localhost:15673`.
 ### Application containers
 
 Both of these applications are available as docker images on Docker Hub.
-We will run the multibinder-rsocket app as a sidecar. 
+We will run the multibinder-grpc app as a sidecar. 
 
 #### Start the deployment of the pod which has function app with multi-binder as sidecar
 
@@ -102,55 +102,44 @@ We will run the multibinder-rsocket app as a sidecar.
 kubectl apply -f app/
 ```
 
-This step will create a deployment with the pod which has the `uppercase-rsocket` as the main container while the `multibinder-rsocket` as the sidecar container.
+This step will create a deployment with the pod which has the `uppercase-grpc` as the main container while the `multibinder-grpc` as the sidecar container.
 
-This will also create a second deployment (another pod) with `aggregate-rsocket` as the main container and the sidecar container `multibinder-rsocket`. 
-This pod will invoke the second function (aggregate) in the `uppercase-rsocket` app which is a reactive style of aggregating text accumulated over a 10 second window.
-
-To view the first deployment:
+To view this deployment:
 
 ```
-kubectl get all -l app=uppercase-with-multibinder-rsocket
+kubectl get all -l app=uppercase-with-multibinder-grpc
 ```
 
 ```
 NAME                                                     READY   STATUS    RESTARTS   AGE
-pod/uppercase-with-multibinder-rsocket-664d9dc56-r2z4z   2/2     Running   0          53s
+pod/uppercase-with-multibinder-grpc-664d9dc56-r2z4z   2/2     Running   0          53s
 
 NAME                                                 READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/uppercase-with-multibinder-rsocket   1/1     1            1           53s
+deployment.apps/uppercase-with-multibinder-grpc   1/1     1            1           53s
 
 NAME                                                           DESIRED   CURRENT   READY   AGE
-replicaset.apps/uppercase-with-multibinder-rsocket-664d9dc56   1         1         1       53s
+replicaset.apps/uppercase-with-multibinder-grpc-664d9dc56   1         1         1       53s
 ```
 
-This step would have also created a service which is used to expose the `multibinder-rsocket` sidecar container.
+This step would have also created a service which is used to expose the `multibinder-grpc` sidecar container.
 
 ```
-kubectl get svc,endpoints -l app=multibinder-rsocket 
+kubectl get svc,endpoints -l app=multibinder-grpc 
 ```
 
 ```
 NAME                          TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
-service/multibinder-rsocket   LoadBalancer   10.102.154.134   <pending>     80:32143/TCP   5m22s
+service/multibinder-grpc   LoadBalancer   10.102.154.134   <pending>     80:32143/TCP   5m22s
 
 NAME                            ENDPOINTS         AGE
-endpoints/multibinder-rsocket   172.17.0.6:8080   5m22s
+endpoints/multibinder-grpc   172.17.0.6:8080   5m22s
 ```
-
-To view the second deployment and its service
-
-```
-kubectl get all -l app=aggregate-with-multibinder-rsocket
-kubectl get svc,endpoints -l app=aggregate-multibinder-rsocket 
-```
-
 
 ### Verifying the uppercase demo 
 
 As indicated above, our purpose is to verify the following using the regular uppercase function:
 
-Kafka Topic -> Request to RSocket Server -> User function -> Response from Rsocket server -> RabbitMQ Exchange
+Kafka Topic -> Request to gRPC Server -> User function -> Response from gRPC server -> RabbitMQ Exchange
 
 This can be validated by sending some data to the Kafka topic and make sure that we receive the output throuth the Rabbit exchange.
 
@@ -170,36 +159,6 @@ On your localhost, go to `http://localhost:15763`
 
 Create a queue binding for the exchange `dataOut` and retrieve messages from the queue.
 The text that you entered into the Kafka topic should be received as uppercased through the Rabbit queue.
-
-If you see the data through the queue, then we validated the scenario.
-
-If you don't see the data, chances are that some configuration might be missing. Happy debugging!
-
-### Verifying the aggregate demo
-
-As indicated above, our purpose is to verify the following using the reactive aggregate function:
-
-Kafka Topic -> Request to RSocket Server -> User function -> Response from Rsocket server -> RabbitMQ Exchange
-
-This can be validated by sending some data to the Kafka topic and make sure that we receive the output throuth the Rabbit exchange.
-
-Open an SSH connection to the Kafka broker:
-
-```
-kubectl exec -it <kafka-broker-pod-name> -- /bin/bash
-```
-Update the Kafka broker pod name when you run this.
-
-```
-/opt/kafka/bin/kafka-console-producer.sh --broker-list localhost:9092 --topic aggregateIn
-```
-At the prompt, enter some text. Enter a few more records. 
-The aggregator concatenates the records every 10 seconds window.
-
-On your localhost, go to `http://localhost:15763`
-
-Create a queue binding for the exchange `aggregateOut` and retrieve messages from the queue.
-The text that you entered into the Kafka topic should be received as concatenated through the Rabbit queue per 10 seconds window.
 
 If you see the data through the queue, then we validated the scenario.
 
