@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: uppercase-grpc
-          image: sobychacko/uppercase-grpc-demo:latest
+          image: tzolov/poc-go-grpc:0.1
         - name: multibinder-grpc
           image: sobychacko/multibinder-grpc-demo:latest
           ports:
